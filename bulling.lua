@@ -17,7 +17,7 @@ by https://t.me/wavecat and https://t.me/aye_ya
 local RandomAccessFile = luajava.bindClass("java.io.RandomAccessFile")
 local StandardCharsets = luajava.bindClass("java.nio.charset.StandardCharsets")
 
-local url = "https://kotov.tk/inline/store/phrases.txt"
+local url = "https://raw.githubusercontent.com/imskaiden/inline_modules/refs/heads/main/store/phrases.txt"
 local default = "/store/phrases.txt"
 
 local dirpath
