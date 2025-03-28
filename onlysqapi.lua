@@ -1,6 +1,6 @@
 --[[
 
-OnlySq API (v1)
+OnlySq API (v1.1)
 
 Использование ИИ используя OnlySq API(https://onlysq.ru)
 
@@ -11,7 +11,6 @@ by https://t.me/ImSkaiden
 --]]
 
 require "menu"
-require "colorama"
 require "http"
 require "json"
 require "utils"
@@ -33,8 +32,10 @@ local function getPreferences(builder)
     return {
         builder.checkBox("v1_use", "Использовать v1"):setDefault(true),
         --builder.text("Текущая модель: "..prefs:getString("model")),
+        builder.spacer(8)
         builder.text("Выберите модель"),
         builder.spinner("model", avaiableModels),
+        builder.spacer(8)
         builder.button("Закрыть", function()
             builder:cancel()
         end),
@@ -106,26 +107,21 @@ end
 return function(module)
     module:setCategory("OnlySq API")
     module:registerPreferences(getPreferences)
-    module:registerCommand("setmodel", colorama.wrap(function(_, query)
-        if not true then
-            query:answer("Функция не работает")
-            return
-        end
-        
+    module:registerCommand("setmodel", function(_, query)
         local model = query:getArgs()
         if prefs:getBoolean("v1_use") then
             query:answer("Используется v1, вы не можете сменить модель.")
             return
         end
         if not contains(avaiableModels, model) then
-            query:answer("Модель "..colorama.bold(model).." не найдена!\nДоступные модели: "..avaiableModels)
+            query:answer("Модель "..model" не найдена!\nДоступные модели: "..avaiableModels)
             return
         end
         prefs:edit("model"):putString("model", model):apply()
         query:answer("Установлена модель " .. colorama.bold(tostring(prefs:getString("model"))))
-    end), "Установка модели для использования")
+    end, "Установка модели для использования")
     
-    module:registerCommand("gpt", colorama.wrap(function(_, query)
+    module:registerCommand("gpt", function(_, query)
         query:answer("Thinking...")
         local question = query:getArgs()
         -- query:answer(question)
@@ -134,5 +130,5 @@ return function(module)
             return
         end
         sendRequest(question, query)
-    end), "Задать вопрос ИИ")
+    end, "Задать вопрос ИИ")
 end
