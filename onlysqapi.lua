@@ -34,7 +34,7 @@ local function getPreferences(builder)
         --builder.text("Текущая модель: "..prefs:getString("model")),
         builder.spacer(8),
         builder.text("Выберите модель"),
-        builder.spinner("model", avaiableModels),
+        builder.spinner("model", avaiableModels):setDefault("gemini"),
         builder.spacer(8),
         builder.button("Закрыть", function()
             builder:cancel()
@@ -118,7 +118,7 @@ return function(module)
             return
         end
         prefs:edit("model"):putString("model", model):apply()
-        query:answer("Установлена модель " .. colorama.bold(tostring(prefs:getString("model"))))
+        query:answer("Установлена модель " .. tostring(prefs:getString("model")))
     end, "Установка модели для использования")
     
     module:registerCommand("gpt", function(_, query)
