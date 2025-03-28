@@ -34,7 +34,7 @@ local function getPreferences(builder)
         --builder.text("Текущая модель: "..prefs:getString("model")),
         builder.spacer(8),
         builder.text("Выберите модель"),
-        builder.spinner("model", avaiableModels):setDefault("gemini"),
+        builder.spinner("model", avaiableModels),
         builder.spacer(8),
         builder.button("Закрыть", function()
             builder:cancel()
