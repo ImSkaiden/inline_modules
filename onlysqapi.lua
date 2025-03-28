@@ -1,5 +1,13 @@
 --[[
 
+OnlySq API (v1)
+
+Использование ИИ используя OnlySq API(https://onlysq.ru)
+
+Доступные модели: gpt-4o-mini, gemini
+
+by https://t.me/ImSkaiden
+
 --]]
 
 require "menu"
