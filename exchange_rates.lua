@@ -22,6 +22,11 @@ local latestInput
 local currencyAliases = {
     ["руб"] = "rub",
     ["грн"] = "uah",
+    ["бун"] = "byn",
+    ["буны"] = "byn",
+    ["бр"] = "byn",
+    ["буна"] = "byn",
+    ["белруб"] = "byn",
     ["рубль"] = "rub",
     ["рублей"] = "rub",
     ["гривна"] = "uah",
@@ -37,6 +42,7 @@ local currencyAliases = {
     ["₽"] = "rub",
     ["¥"] = "jpy",
     ["£"] = "gbp",
+    ["₿"] = "btc",
 }
 
 local DEFAULT_CURRENCIES = "rub,usd,eur"
