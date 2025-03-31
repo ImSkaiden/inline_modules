@@ -8,7 +8,7 @@ by https://t.me/wavecat
 require "http"
 require "iutf8"
 
-if (not inline:isFloatingWindowSupported()) then
+if not inline:isFloatingWindowSupported() then
     return
 end
 
