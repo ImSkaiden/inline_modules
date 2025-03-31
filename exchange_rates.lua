@@ -8,10 +8,16 @@ by https://t.me/wavecat
 require "http"
 require "iutf8"
 
+if (not inline:isFloatingWindowSupported()) then
+    return
+end
+
 local Gravity = luajava.bindClass("android.view.Gravity")
 local Pattern = luajava.bindClass("java.util.regex.Pattern")
 
 local timer = inline:getTimer()
+
+local latestInput
 
 local currencyAliases = {
     ["руб"] = "rub",
@@ -37,7 +43,7 @@ local DEFAULT_CURRENCIES = "rub,usd,eur"
 local CURRENCY_API_BASE_URL = "https://cdn.jsdelivr.net/npm/@fawazahmed0/currency-api@latest/v1/currencies/"
 
 local function buildPattern()
-    local patternBase = { "(?:\\b|\\s)(\\d+(?:\\.\\d+)?)\\s*(\\$|1inch|aave|ada|aed|afn|akt|algo|all|amd|amp|ang|aoa|ape|apt|ar|arb|ars|atom|ats|aud|avax|awg|axs|azm|azn|bake|bam|bat|bbd|bch|bdt|bef|bgn|bhd|bif|bmd|bnb|bnd|bob|brl|bsd|bsv|bsw|btc|btcb|btg|btn|btt|busd|bwp|byn|byr|bzd|cad|cake|cdf|celo|cfx|chf|chz|clp|cnh|cny|comp|cop|crc|cro|crv|cspr|cuc|cup|cve|cvx|cyp|czk|dai|dash|dcr|dem|dfi|djf|dkk|doge|dop|dot|dydx|dzd|eek|egld|egp|enj|eos|ern|esp|etb|etc|eth|eur|fei|fil|fim|fjd|fkp|flow|flr|frax|frf|ftt|fxs|gala|gbp|gel|ggp|ghc|ghs|gip|gmd|gmx|gnf|gno|grd|grt|gt|gtq|gusd|gyd|hbar|hkd|hnl|hnt|hot|hrk|ht|htg|huf|icp|idr|iep|ils|imp|imx|inj|inr|iqd|irr|isk|itl|jep|jmd|jod|jpy|kas|kava|kcs|kda|kes|kgs|khr|klay|kmf|knc|kpw|krw|ksm|kwd|kyd|kzt|lak|lbp|ldo|leo|link|lkr|lrc|lrd|lsl|ltc|ltl|luf|luna|lunc|lvl|lyd|mad|mana|mbx|mdl|mga|mgf|mina|mkd|mkr|mmk|mnt|mop|mro|mru|mtl|mur|mvr|mwk|mxn|mxv|myr|mzm|mzn|nad|near|neo|nexo|nft|ngn|nio|nlg|nok|npr|nzd|okb|omr|one|op|ordi|pab|paxg|pen|pepe|pgk|php|pkr|pln|pte|pyg|qar|qnt|qtum|rol|ron|rpl|rsd|rub|rune|rvn|rwf|sand|sar|sbd|scr|sdd|sdg|sek|sgd|shib|shp|sit|skk|sle|sll|snx|sol|sos|spl|srd|srg|std|stn|stx|sui|svc|syp|szl|thb|theta|tjs|tmm|tmt|tnd|ton|top|trl|trx|try|ttd|tusd|tvd|twd|twt|tzs|uah|ugx|uni|usd|usdc|usdd|usdp|usdt|uyu|uzs|val|veb|ved|vef|ves|vet|vnd|vuv|waves|wemix|woo|wst|xaf|xag|xau|xaut|xbt|xcd|xch|xdc|xdr|xec|xem|xlm|xmr|xof|xpd|xpf|xpt|xrp|xtz|yer|zar|zec|zil|zmk|zmw|zwd|zwg|zwl" }
+    local patternBase = { "(?:\\b|\\s)(\\d+(?:[\\,\\.]\\d+)?)([кk]{0,3}?)\\s*(\\$|1inch|aave|ada|aed|afn|akt|algo|all|amd|amp|ang|aoa|ape|apt|ar|arb|ars|atom|ats|aud|avax|awg|axs|azm|azn|bake|bam|bat|bbd|bch|bdt|bef|bgn|bhd|bif|bmd|bnb|bnd|bob|brl|bsd|bsv|bsw|btc|btcb|btg|btn|btt|busd|bwp|byn|byr|bzd|cad|cake|cdf|celo|cfx|chf|chz|clp|cnh|cny|comp|cop|crc|cro|crv|cspr|cuc|cup|cve|cvx|cyp|czk|dai|dash|dcr|dem|dfi|djf|dkk|doge|dop|dot|dydx|dzd|eek|egld|egp|enj|eos|ern|esp|etb|etc|eth|eur|fei|fil|fim|fjd|fkp|flow|flr|frax|frf|ftt|fxs|gala|gbp|gel|ggp|ghc|ghs|gip|gmd|gmx|gnf|gno|grd|grt|gt|gtq|gusd|gyd|hbar|hkd|hnl|hnt|hot|hrk|ht|htg|huf|icp|idr|iep|ils|imp|imx|inj|inr|iqd|irr|isk|itl|jep|jmd|jod|jpy|kas|kava|kcs|kda|kes|kgs|khr|klay|kmf|knc|kpw|krw|ksm|kwd|kyd|kzt|lak|lbp|ldo|leo|link|lkr|lrc|lrd|lsl|ltc|ltl|luf|luna|lunc|lvl|lyd|mad|mana|mbx|mdl|mga|mgf|mina|mkd|mkr|mmk|mnt|mop|mro|mru|mtl|mur|mvr|mwk|mxn|mxv|myr|mzm|mzn|nad|near|neo|nexo|nft|ngn|nio|nlg|nok|npr|nzd|okb|omr|one|op|ordi|pab|paxg|pen|pepe|pgk|php|pkr|pln|pte|pyg|qar|qnt|qtum|rol|ron|rpl|rsd|rub|rune|rvn|rwf|sand|sar|sbd|scr|sdd|sdg|sek|sgd|shib|shp|sit|skk|sle|sll|snx|sol|sos|spl|srd|srg|std|stn|stx|sui|svc|syp|szl|thb|theta|tjs|tmm|tmt|tnd|ton|top|trl|trx|try|ttd|tusd|tvd|twd|twt|tzs|uah|ugx|uni|usd|usdc|usdd|usdp|usdt|uyu|uzs|val|veb|ved|vef|ves|vet|vnd|vuv|waves|wemix|woo|wst|xaf|xag|xau|xaut|xbt|xcd|xch|xdc|xdr|xec|xem|xlm|xmr|xof|xpd|xpf|xpt|xrp|xtz|yer|zar|zec|zil|zmk|zmw|zwd|zwg|zwl" }
 
     for alias, _ in pairs(currencyAliases) do
         table.insert(patternBase, "|")
@@ -298,16 +304,6 @@ local result = {}
 local timestamp = os.time()
 local bar
 
-local function insertText(ui, text)
-    local node = inline:getLatestAccessibilityEvent():getSource()
-
-    if node == nil or ui:isFocused() or node:getPackageName() == inline:getPackageName() then
-        return inline:toast("Please focus on the desired input")
-    end
-
-    inline:insertText(node, text)
-end
-
 local function showBar(input)
     local text
     local tools
@@ -327,10 +323,10 @@ local function showBar(input)
         paddingRight = 8,
         paddingBottom = 8,
         paddingTop = 8,
-        positionY = inline:getScreenHeight() - rect.top + 50,
+        positionY = inline:getScreenHeight() - rect.top + inline:dpToPx(22),
         gravity = bit32.bor(Gravity.BOTTOM, Gravity.LEFT),
         onMove = function()
-            text:setPaddingRelative(12, 12, 12, 0)
+            text:setPaddingRelative(12, 12, 12, 8)
             text:setTextSize(14)
             tools:setVisibility(tools.VISIBLE)
             timerTask:cancel()
@@ -341,14 +337,18 @@ local function showBar(input)
 
         text = ui.text("")
         text:setTextSize(12)
+
+        local paste = ui.smallButton("Paste", function()
+            inline:insertText(latestInput, text:getText())
+        end)
+
         tools = ui.row({
             ui.smallButton("Close", function()
                 ui:close()
             end),
-            ui.smallButton("Paste", function()
-                insertText(ui, text:getText())
-            end)
+            paste
         })
+
         tools:setVisibility(tools.GONE)
         return { text, tools }
     end)
@@ -438,12 +438,12 @@ end
 
 local function watcher(input)
     local text = inline:getText(input)
-    local matcher = pattern:matcher(text)
 
-    if #text > 1000 then
+    if #text > 500 then
         return
     end
 
+    local matcher = pattern:matcher(text)
     result = {}
 
     if os.time() - timestamp > 900 then
@@ -452,8 +452,19 @@ local function watcher(input)
     end
 
     while matcher:find() do
-        local number = tonumber(matcher:group(1))
-        local currencyCode = utf8.lower(matcher:group(2))
+        local numberString = string.gsub(matcher:group(1), ",", ".")
+        local factor = string.gsub(matcher:group(2), "к", "k")
+        local number = tonumber(numberString)
+
+        if factor == "k" then
+            number = number * 1000
+        elseif factor == "kk" then
+            number = number * 1000000
+        elseif factor == "kkk" then
+            number = number * 1000000000
+        end
+
+        local currencyCode = utf8.lower(matcher:group(3))
         local currency = currencyAliases[currencyCode] or currencyCode
 
         table.insert(result, { value = number, currency = currency })
@@ -497,4 +508,8 @@ return function(module)
     if preferences:getBoolean("exchange_rates", true) then
         module:registerWatcher(watcher)
     end
+
+    module:registerWatcher(function(input)
+        latestInput = input
+    end)
 end
