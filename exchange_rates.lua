@@ -1,10 +1,3 @@
---[[
-
-Exchange Rates
-by https://t.me/wavecat
-
---]]
-
 require "http"
 require "iutf8"
 require "windows"
@@ -361,7 +354,7 @@ local function showBar(input)
         local buffer = {}
 
         for i, pair in pairs(newResult) do
-            local currencyCode = utf8.upper(pair.currency)
+            local currencyCode = string.upper(pair.currency)
             table.insert(buffer, currencyEmoji[currencyCode])
             table.insert(buffer, " ")
             table.insert(buffer, pair.value)
@@ -373,7 +366,7 @@ local function showBar(input)
                     if pair.currency ~= base then
                         table.insert(buffer, " = ")
                         local calculated = (data[pair.currency][base] or 0) * pair.value
-                        local currencyCodeBase = utf8.upper(base)
+                        local currencyCodeBase = string.upper(base)
                         table.insert(buffer, currencyEmoji[currencyCodeBase])
                         table.insert(buffer, " ")
                         table.insert(buffer, string.format("%.2f", calculated))
@@ -462,7 +455,7 @@ local function watcher(input)
             number = number * 1000000000
         end
 
-        local currencyCode = utf8.lower(matcher:group(3))
+        local currencyCode = string.lower(matcher:group(3))
         local currency = currencyAliases[currencyCode] or currencyCode
 
         table.insert(result, { value = number, currency = currency })
