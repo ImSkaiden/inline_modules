@@ -43,4 +43,5 @@ return function(module)
     module:setCategory("Pastebin")
     module:registerCommand("pbin", pastebin, "Create new paste with pastebin")
     module:registerCommand("setpkey", setpkey, "Sets the pastebin key")
+    module:saveLazyLoad()
 end
