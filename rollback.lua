@@ -118,4 +118,5 @@ return function(module)
     module:registerCommandFinder(finder)
 
     module:registerCommand("rollback", rollback)
+    module:saveLazyLoad()
 end
