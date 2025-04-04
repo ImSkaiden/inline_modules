@@ -68,4 +68,5 @@ return function(module)
     dirpath = path:sub(1, path:match("^.*()/"))
 
     module:registerCommand("bull", bull, check() and generate() or "")
+    module:saveLazyLoad()
 end
