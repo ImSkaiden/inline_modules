@@ -7,18 +7,15 @@ by https://t.me/wavecat
 
 require "http"
 require "iutf8"
+require "windows"
 
-if not inline:isFloatingWindowSupported() then
+if not windows:isSupported() then
     return
 end
 
-local Gravity = luajava.bindClass("android.view.Gravity")
 local Pattern = luajava.bindClass("java.util.regex.Pattern")
 
 local timer = inline:getTimer()
-
-local latestInput
-
 local currencyAliases = {
     ["руб"] = "rub",
     ["грн"] = "uah",
@@ -320,17 +317,12 @@ local function showBar(input)
         bar = nil
     end)
 
-    local rect = inline:getBoundsInScreen(input)
-    window = inline:showFloatingWindow({
+    window = windows.createAligned(input, {
         noLimits = true,
-        allowTouchMove = true,
-        positionX = rect.left,
         paddingLeft = 8,
         paddingRight = 8,
         paddingBottom = 8,
         paddingTop = 8,
-        positionY = inline:getScreenHeight() - rect.top + inline:dpToPx(22),
-        gravity = bit32.bor(Gravity.BOTTOM, Gravity.LEFT),
         onMove = function()
             text:setPaddingRelative(12, 12, 12, 8)
             text:setTextSize(14)
@@ -345,7 +337,7 @@ local function showBar(input)
         text:setTextSize(12)
 
         local paste = ui.smallButton("Paste", function()
-            inline:insertText(latestInput, text:getText())
+            windows.insertText(text:getText())
         end)
 
         tools = ui.row({
@@ -515,7 +507,5 @@ return function(module)
         module:registerWatcher(watcher)
     end
 
-    module:registerWatcher(function(input)
-        latestInput = input
-    end)
+    windows.supportInsert()
 end
