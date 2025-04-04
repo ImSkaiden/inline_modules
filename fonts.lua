@@ -995,4 +995,5 @@ return function(module)
                 apply(v, k)
         )
     end
+    module:saveLazyLoad()
 end
