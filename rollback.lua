@@ -116,7 +116,5 @@ end
 return function(module)
     module:registerWatcher(watcher)
     module:registerCommandFinder(finder)
-
     module:registerCommand("rollback", rollback)
-    module:saveLazyLoad()
 end
