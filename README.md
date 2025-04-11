@@ -1,3 +1,5 @@
+# New repository here >> https://github.com/InlineApp/modules
+
 # Modules for [Inline](https://t.me/inline_android) 
 
 Official github: https://github.com/dmitrijkotov634/Inline2
